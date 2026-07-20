@@ -1,0 +1,7 @@
+services:
+  nodejs-event-loop-lab:
+    build: .
+    image: nodejs-event-loop-lab:local
+    ports:
+      - "${NODEJS_EVENT_LOOP_PORT:-8080}:80"
+    restart: unless-stopped

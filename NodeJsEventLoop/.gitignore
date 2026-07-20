@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Local environment files. Keep an example file if one is added later.
+.env
+.env.*
+!.env.example
+
+# TypeScript and tool caches
+*.tsbuildinfo
+.eslintcache
+.npm-cache/
+
+# Local Docker overrides
+compose.override.yml
+docker-compose.override.yml
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

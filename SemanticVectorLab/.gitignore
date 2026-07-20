@@ -1,0 +1,25 @@
+# Environment and local configuration
+.env
+.env.local
+!.env.example
+
+# JavaScript
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Tooling and operating system
+.pnpm-store/
+.DS_Store
+Thumbs.db
+.coverage
+coverage/

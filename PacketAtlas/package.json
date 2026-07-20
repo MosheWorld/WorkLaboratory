@@ -1,0 +1,31 @@
+{
+  "name": "packet-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && vite build",
+    "start": "serve -s dist -l 8080",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{html,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{html,json,md}\"",
+    "lint": "biome lint src",
+    "check": "npm run typecheck && npm run format:check && npm run lint"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "serve": "^14.2.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prettier": "^3.9.8",
+    "typescript": "^7.0.2",
+    "vite": "^7.0.0"
+  }
+}
