@@ -1,0 +1,34 @@
+import type { TraceBuilder } from "../shared/createTraceBuilder";
+import { sourceLine } from "./lessonSource";
+
+export const traceHttpResponse = (trace: TraceBuilder): void => {
+  trace.setActivePhase("poll");
+  trace.placeToken("server-request", "HTTP request callback", "poll-queue");
+  trace.recordSnapshot("request-ready", sourceLine("createServer"), "Queue the incoming request", "The local connection delivers the request. The server's request handler becomes eligible through poll.");
+  trace.enterCall("server-request", "HTTP request callback", sourceLine("createServer"), "Move the request handler onto the empty call stack. It begins at the first statement of its body.");
+  trace.writeConsole("server-request", "server request", sourceLine("logServerRequest"));
+  trace.scheduleCallback("server-next-tick", "request nextTick callback", "process.nextTick()", "next-tick-queue", sourceLine("scheduleServerNextTick"), "Queue the server's nextTick without running it. The request handler is still executing.");
+  trace.scheduleCallback("server-promise", "request Promise callback", "Promise.resolve().then()", "microtask-queue", sourceLine("scheduleServerPromise"), "Queue the Promise handler separately. It will run after the server's nextTick.");
+  trace.enterCall("stringify", "JSON.stringify()", sourceLine("sendResponse"), "Evaluate the response argument before calling response.end(). It produces the JSON text containing Ada.");
+  trace.returnFromCall("stringify", "JSON.stringify()", sourceLine("sendResponse"));
+  trace.enterCall("response-end", "response.end()", sourceLine("sendResponse"), "Pass the JSON body to Node's HTTP response API.");
+  trace.placeToken("axios-socket", "HTTP response in transit", "operating-system");
+  trace.recordSnapshot("send-response", sourceLine("sendResponse"), "Send the response through the socket", "Node hands response bytes to the connection. This does not immediately resume the awaiting client function.");
+  trace.returnFromCall("response-end", "response.end()", sourceLine("sendResponse"));
+  trace.returnFromCall("server-request", "HTTP request callback", sourceLine("endRequestHandler"));
+  trace.setActivePhase(null);
+  trace.recordSnapshot("request-checkpoint", sourceLine("endRequestHandler"), "Drain the request's priority work", "The request handler has returned. Node runs its nextTick before V8 runs its Promise callback.");
+  trace.runLoggingCallback("server-next-tick", "request nextTick callback", "server nextTick", sourceLine("scheduleServerNextTick"));
+  trace.runLoggingCallback("server-promise", "request Promise callback", "server promise", sourceLine("scheduleServerPromise"));
+  trace.setActivePhase("poll");
+  trace.placeToken("axios-response", "Axios response processing", "poll-queue");
+  trace.recordSnapshot("axios-response-ready", sourceLine("awaitAxios"), "Response data becomes ready", "Socket readiness makes client response processing eligible through poll. Axios has not yet delivered data to requestUser.");
+  trace.enterCall("axios-response", "Axios response processing", sourceLine("awaitAxios"), "Client response handlers run on the JavaScript stack. This groups Axios and Node stream internals, including their Promise plumbing.");
+  trace.placeToken("axios-socket", "HTTP connection: response received", "operating-system");
+  trace.placeToken("axios-continuation", "requestUser continuation", "microtask-queue");
+  trace.recordSnapshot("queue-axios-continuation", sourceLine("awaitAxios"), "Promise settlement queues the continuation", "After response processing and library Promise handlers settle the awaited result, requestUser becomes a V8 microtask. This groups internal library steps; the application continuation still waits for an empty stack.");
+  trace.returnFromCall("axios-response", "Axios response processing", sourceLine("awaitAxios"));
+  trace.setActivePhase(null);
+  trace.enterCall("axios-continuation", "requestUser continuation", sourceLine("awaitAxios"), "Move the await continuation from V8's queue to the stack. requestUser now receives data and continues after await.");
+  trace.writeConsole("axios-ready", "axios ready: Ada", sourceLine("logAxiosResult"));
+};
